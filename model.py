@@ -42,7 +42,7 @@ assert os.path.exists(SAVER_DIR)
 assert os.path.exists(LOG_DIR)
 
 print('Loading data')
-train_files = get_files_path(TRAIN_DIR) # Use all files
+train_files = get_files_path(TRAIN_DIR, n = 200)# use 200 images per class
 
 X_train, X_val, y_train, y_val = get_train_and_val_sets(train_files, val_size = 0.2)
 del train_files
@@ -76,55 +76,24 @@ with graph0.as_default():
             # Convolutional layer #1
             conv1 = tf.layers.conv2d(
                 inputs = input_data,
-                filters = 40,
-                kernel_size = 7,
+                filters = 20,
+                kernel_size = 5,
                 padding = "same",
                 activation = tf.nn.relu)
             # Pooling layer #1
             pool1 = tf.layers.max_pooling2d(
                 inputs=conv1,
                 pool_size=2,
-                strides=1)
-            # Convolutional layer #2
-            conv2 = tf.layers.conv2d(
-                inputs = pool1,
-                filters = 20,
-                kernel_size = 5,
-                padding = "same",
-                activation = tf.nn.relu)
-            # Pooling layer #2
-            pool2 = tf.layers.max_pooling2d(
-                inputs=conv2,
-                pool_size=2,
-                strides=1)
-            # Convolutional layer #3
-            conv3 = tf.layers.conv2d(
-                inputs = pool2,
-                filters = 10,
-                kernel_size = 3,
-                padding = "same",
-                activation = tf.nn.relu)
-            # Pooling layer #3
-            pool3 = tf.layers.max_pooling2d(
-                inputs=conv3,
-                pool_size=2,
-                strides=1)
-            pool3_flat = flatten(pool3)
-            drop1 = tf.layers.dropout(pool3_flat, rate = 0.3, training = is_training)
+                strides=2)
             # Dense layer #1
-            dense1 = tf.layers.dense(inputs=drop1,
+            pool1_flat = flatten(pool1)
+            dense1 = tf.layers.dense(inputs=pool1_flat,
                                     units=1024,
                                     activation=tf.nn.relu,
                                     use_bias = True)
-            drop4 = tf.layers.dropout(dense1, rate = 0.3, training = is_training)
-            # Dense layer #1
-            dense2 = tf.layers.dense(inputs=drop4,
-                                    units=512,
-                                    activation=tf.nn.relu,
-                                    use_bias = True)
-            drop5 = tf.layers.dropout(dense2, rate = 0.3, training = is_training)            
+            drop1 = tf.layers.dropout(dense1, rate = 0.4, training = is_training)
             # Logits layer 
-            return tf.layers.dense(drop5, n_outputs, use_bias = True)
+            return tf.layers.dense(drop1, n_outputs, use_bias = True)
     
     
     logits = model(X)
