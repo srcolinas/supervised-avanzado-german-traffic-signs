@@ -1,5 +1,5 @@
 # RED NEURONAL CONVOLUCIONAL DE PROFUNDIDAD MEDIA
-Para esta solución se utilizó una red neuronal convolucional y todos los datos de entrenamiento 
+Para esta solución se utilizó una red neuronal convolucional y **todos** los datos de entrenamiento 
 disponibles
 
 ## Modelo
