@@ -30,15 +30,15 @@ El dropout se hizo con una probabilidad de conservación de 0.3
 
 Los archivos asumen que se tiene una carpeta llamada 'german-traffic-signs' la cual contiene 
 las carpatas 'training-set' y 'test-set', las cuales corresponden a los datos de entrenamiento 
-y prueba respectivamente (como son entregados por el paquete [dataget]https://github.com/cgarciae/dataget)
+y prueba respectivamente (como son entregados por el paquete [dataget](https://github.com/cgarciae/dataget))
 
 model.py crea carpetas donde guarda algunos datos del modelo y el enternamiento, pero estos no 
 serán guardados en el repositorio.
 
 ### Más detalles del reto 
 Para más detalles visite la página principal del reto en colomb-ia:
-    [reto]https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs
-    [ranking]https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs/blob/master/ranking.md
+    [reto](https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs)
+    [ranking](https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs/blob/master/ranking.md)
 
     
 
