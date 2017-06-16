@@ -41,27 +41,31 @@ assert os.path.exists(TEST_DIR)
 assert os.path.exists(SAVER_DIR)
 assert os.path.exists(LOG_DIR)
 
+n_models = 8
+
 print('Loading data')
-train_files = get_files_path(TRAIN_DIR) # Use all files
-
-X_train, X_val, y_train, y_val = get_train_and_val_sets(train_files, val_size = 0.2)
+train_files = get_files_path(TRAIN_DIR) # Use all files  
+X, y = load_data(train_files)
+X, y = shuffle(X, y, random_state = 42)   
+data = get_data_splits(X,y,n_models)
 del train_files
+del X, y
 
-print("shape of training data: {}".format(X_train.shape))
-print("shape of training labels: {}".format(y_train.shape))
-print("shape of validation data: {}".format(X_val.shape))
-print("shape of validation labels: {}".format(y_val.shape))
+for X_, y_ in data:
+    print('shape of X:',X_.shape,'shape of y:',y_.shape)
+    # plt.hist(y_)
+    # plt.show()
 
-fetcher = Fetcher(X_train, y_train)
-del X_train, y_train
+fetchers = [Fetcher(X_,y_) for X_, y_ in data]
+fetchers.append(fetchers[0])
 
+del data  
     
 n_ch = 3
 height = 32
 width = height
 n_outputs = 43
 
-print('building graph..')
 graph0 = tf.Graph()
 with graph0.as_default():
     
@@ -76,85 +80,72 @@ with graph0.as_default():
             # Convolutional layer #1
             conv1 = tf.layers.conv2d(
                 inputs = input_data,
-                filters = 40,
-                kernel_size = 7,
+                filters = 20,
+                kernel_size = 5,
                 padding = "same",
                 activation = tf.nn.relu)
             # Pooling layer #1
             pool1 = tf.layers.max_pooling2d(
                 inputs=conv1,
                 pool_size=2,
-                strides=1)
-            # Convolutional layer #2
-            conv2 = tf.layers.conv2d(
-                inputs = pool1,
-                filters = 20,
-                kernel_size = 5,
-                padding = "same",
-                activation = tf.nn.relu)
-            # Pooling layer #2
-            pool2 = tf.layers.max_pooling2d(
-                inputs=conv2,
-                pool_size=2,
-                strides=1)
-            # Convolutional layer #3
-            conv3 = tf.layers.conv2d(
-                inputs = pool2,
-                filters = 10,
-                kernel_size = 3,
-                padding = "same",
-                activation = tf.nn.relu)
-            # Pooling layer #3
-            pool3 = tf.layers.max_pooling2d(
-                inputs=conv3,
-                pool_size=2,
-                strides=1)
-            pool3_flat = flatten(pool3)
-            drop1 = tf.layers.dropout(pool3_flat, rate = 0.3, training = is_training)
+                strides=2)
             # Dense layer #1
-            dense1 = tf.layers.dense(inputs=drop1,
+            pool1_flat = flatten(pool1)
+            dense1 = tf.layers.dense(inputs=pool1_flat,
                                     units=1024,
                                     activation=tf.nn.relu,
                                     use_bias = True)
-            drop4 = tf.layers.dropout(dense1, rate = 0.3, training = is_training)
-            # Dense layer #1
-            dense2 = tf.layers.dense(inputs=drop4,
-                                    units=512,
-                                    activation=tf.nn.relu,
-                                    use_bias = True)
-            drop5 = tf.layers.dropout(dense2, rate = 0.3, training = is_training)            
+            drop1 = tf.layers.dropout(dense1, rate = 0.25, training = is_training)
             # Logits layer 
-            return tf.layers.dense(drop5, n_outputs, use_bias = True)
+            return tf.layers.dense(drop1, n_outputs, use_bias = True)
     
     
-    logits = model(X)
-    
-    # Loss
-    with tf.name_scope('Loss'):
-        xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
-        loss = tf.reduce_mean(xentropy)
-    
-    # Optimizer
-    with tf.name_scope('Optimizer'):
-        optimizer = tf.train.AdamOptimizer()
-        training_op = optimizer.minimize(loss)
+    logits = [model(X) for i in range(n_models)]  
+
+    logits_total = tf.add_n(logits)
         
-    sum_corrects = tf.reduce_sum(tf.cast(tf.nn.in_top_k(logits, y, 1),tf.float32))
+    def get_training_op(labels, logits):
+        with tf.name_scope("training_op"):            
+            # Loss
+            with tf.name_scope('Loss'):
+                xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
+                loss = tf.reduce_mean(xentropy)
+            
+            # Optimizer
+            with tf.name_scope('Optimizer'):
+                optimizer = tf.train.AdamOptimizer()
+                return optimizer.minimize(loss)
     
+    training_ops = [get_training_op(y, logit) for logit in logits]
+
+    def get_sum(labels, logits):
+        with tf.name_scope('Sum'):
+            return tf.reduce_sum(tf.cast(tf.nn.in_top_k(logits, y, 1),tf.float32))
+
+    sums = [get_sum(y, logit) for logit in logits]
+       
+    sum_total = get_sum(y, logits_total)     
     # Predictions
-    prob = tf.nn.softmax(logits, name = 'Probabilities')
-    pred = tf.argmax(prob,1, name = 'Prediction')
-          
+    probabilities = [tf.nn.softmax(logit) for logit in logits]
+    prediction = [tf.argmax(prob,1) for prob in probabilities]
+        
+    probs_total = tf.nn.softmax(logits_total)
+    pred_total = tf.argmax(probs_total,1)
+    
     init = tf.global_variables_initializer()
     saver = tf.train.Saver()
- 
+	
 file_writer = tf.summary.FileWriter(LOG_DIR, graph = graph0) #Visualize graph in tensorboard
-file_writer.close() 
- 
+file_writer.close()
+
+n_epochs = 1000
+batch_size = 100
+n_batches = 5
+
 def get_accuracy(sum_op, X_, y_, splits = 8):
     """This functions computes accuracy based
         on a counter of right predictions. This
-        way we can split data sets and use less
+        way we can split data sets to use less
         RAM to calculate accuracies"""
     n = len(y_)
     k = int(n/splits)
@@ -167,49 +158,54 @@ def get_accuracy(sum_op, X_, y_, splits = 8):
             s += sum_op.eval(feed_dict={X: X_[prev:i*k], y: y_[prev:i*k]})
             prev = i*k
     return s/n
- 
-n_epochs = 1000
-batch_size = 50
-n_batches = 20
 
-best_acc_val = 0
-delta_progress = 0.0001
-checks_since_last_progress = 0
+stoppers = [False for i in range(n_models)]    
+best_acc_val = [0 for i in range(n_models)]
+checks_since_last_progress = [0 for i in range(n_models)]
 max_checks_without_progress = 10
 best_model_params = None 
-print('runing model..')
+print('runing model...')
 with tf.Session(graph=graph0) as sess:
     sess.run(init)
+    print('Creating file writer')
     print('Initialized')
-    for epoch in range(n_epochs):
+    for epoch in range(n_epochs + 1):
         for batch_index in range(n_batches):
-            X_batch, y_batch = fetcher.fetch(epoch, batch_index, batch_size, n_batches)
-            sess.run(training_op, feed_dict={X: X_batch, y: y_batch, is_training: True})
-        if (epoch % 10 == 0):
-            acc_train = get_accuracy(sum_corrects, X_batch, y_batch, splits = 1)
-            acc_val = get_accuracy(sum_corrects, X_val, y_val, splits = 16)
-            if acc_val > best_acc_val + delta_progress:
-                best_acc_val = acc_val
-                checks_since_last_progress = 0
-                best_model_params = get_model_params()
-            else:
-                checks_since_last_progress += 1
-            print("Epoch: {:4} || ".format(epoch) + 
-				  "Train accuracy: {:4.4} ||".format(acc_train) + 
-                  "Current validation accuracy: {:4.4} || ".format(acc_val) + 
-                  "Best validation accuracy: {:4.4}".format(best_acc_val))
-        if checks_since_last_progress > max_checks_without_progress:
-            print("Early stopping!")
+            for i in range(n_models):
+                if not stoppers[i]:
+                    X_batch, y_batch = fetchers[i].fetch(epoch,
+                                                        batch_index,
+                                                        batch_size, n_batches)
+                    sess.run(training_ops[i],
+                                feed_dict={X: X_batch, y: y_batch, is_training: True})
+            if (epoch % 10 == 0) and batch_index == 0:
+                print("Epoch: {:4} || ".format(epoch))
+                for i in range(n_models):              
+                    acc = get_accuracy(sums[i], fetchers[i].X,
+                                        fetchers[i].y, splits = 3)
+                    print("Training accuracy of model {}: {:4.4} ||".format(i,acc))
+                    acc = get_accuracy(sums[i], fetchers[i+1].X,
+                                        fetchers[i+1].y, splits = 3)
+                    print("Validation accuracy of model {}: {:4.4} ||".format(i,acc))
+                    print("-------------------------------------------------")
+                    if acc > best_acc_val[i]:
+                        best_acc_val[i] = acc
+                        checks_since_last_progress[i] = 0
+                    else:
+                        checks_since_last_progress[i] += 1
+                    if checks_since_last_progress[i] > max_checks_without_progress:
+                        print('Early stopping model ',i)
+                        stoppers[i] = True
+        if not False in stoppers:
+            print("Early stopping all!")
             break
-
-    if best_model_params:
-        restore_model_params(best_model_params)
+    model_params = get_model_params()
+    if model_params:
         save_path = saver.save(sess, SAVER_FILE)
-
-del fetcher		
-  
-del X_val
-del y_val
+                
+del fetchers		
+del X_batch
+del y_batch
 
 test_files = get_files_path(TEST_DIR)
 X_test, y_test = load_data(test_files)
@@ -217,8 +213,9 @@ X_test, y_test = load_data(test_files)
 del test_files
 
 with tf.Session(graph = graph0) as sess:
-    restore_model_params(best_model_params)
-    acc_test = get_accuracy(sum_corrects, X_test, y_test, splits = 15)
-    print("Final accuracy on test set:", acc_test)
-	
-
+    restore_model_params(model_params)
+    for i in range(n_models):
+        print('Accuracy of network',i,':',
+              get_accuracy(sums[i], X_test, y_test, splits = 8))
+    print('Accuracy of all', get_accuracy(sum_total, X_test, y_test, splits = 8))
+            
