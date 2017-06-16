@@ -16,7 +16,6 @@ clasificación lineal utilizando SVM. Se usaron **todos** los datos
 | - | - |
 | model.py | Contiene el modelo, la definición del gráfico de tensorflow y su entrenamiento |
 | explore.ipynb | Exploración inicial de los datos |
-| restore_and_predict.ipynb | Permite explorar más a fondo el resultado del entrenamiento | 
 
 Los archivos asumen que se tiene una carpeta llamada 'german-traffic-signs' la cual contiene 
 las carpatas 'training-set' y 'test-set', las cuales corresponden a los datos de entrenamiento 
