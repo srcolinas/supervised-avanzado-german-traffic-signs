@@ -1,7 +1,6 @@
-pillow
-scipy
+sklearn
 numpy
 pandas
 jupyter
 matplotlib
-dataget
+tensorflow 

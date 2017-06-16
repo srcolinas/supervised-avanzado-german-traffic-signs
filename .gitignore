@@ -1,6 +1,13 @@
 # custom
 data
 
+# images folder
+german-traffic-signs/
+
+# savers and logs folder
+savers/
+tf_logs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
