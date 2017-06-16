@@ -1,5 +1,5 @@
 # RED NEURONAL CONVOLUCIONAL DE PROFUNDIDAD MEDIA
-Para esta solución se utilizó una red neuronal convolucional y solo 200 imágenes por clase para 
+Para esta solución se utilizó una red neuronal convolucional y solo **200** imágenes por clase para 
 el entrenamiento, de tal forma que los datos fueran balanceados por clase.
 
 ## Modelo
