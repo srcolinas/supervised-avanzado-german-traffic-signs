@@ -72,60 +72,29 @@ with graph0.as_default():
     y = tf.placeholder(dtype = tf.int32, shape = (None), name = "y")
         
     def model(input_data):
-        with tf.name_scope('model'):           
-            # Convolutional layer #1
-            conv1 = tf.layers.conv2d(
-                inputs = input_data,
-                filters = 40,
-                kernel_size = 7,
-                padding = "same",
-                activation = tf.nn.relu)
-            # Pooling layer #1
-            pool1 = tf.layers.max_pooling2d(
-                inputs=conv1,
-                pool_size=2,
-                strides=1)
-            # Convolutional layer #2
-            conv2 = tf.layers.conv2d(
-                inputs = pool1,
-                filters = 20,
-                kernel_size = 5,
-                padding = "same",
-                activation = tf.nn.relu)
-            # Pooling layer #2
-            pool2 = tf.layers.max_pooling2d(
-                inputs=conv2,
-                pool_size=2,
-                strides=1)
-            # Convolutional layer #3
-            conv3 = tf.layers.conv2d(
-                inputs = pool2,
-                filters = 10,
-                kernel_size = 3,
-                padding = "same",
-                activation = tf.nn.relu)
-            # Pooling layer #3
-            pool3 = tf.layers.max_pooling2d(
-                inputs=conv3,
-                pool_size=2,
-                strides=1)
-            pool3_flat = flatten(pool3)
-            drop1 = tf.layers.dropout(pool3_flat, rate = 0.3, training = is_training)
-            # Dense layer #1
-            dense1 = tf.layers.dense(inputs=drop1,
-                                    units=1024,
-                                    activation=tf.nn.relu,
-                                    use_bias = True)
-            drop4 = tf.layers.dropout(dense1, rate = 0.3, training = is_training)
-            # Dense layer #1
-            dense2 = tf.layers.dense(inputs=drop4,
-                                    units=512,
-                                    activation=tf.nn.relu,
-                                    use_bias = True)
-            drop5 = tf.layers.dropout(dense2, rate = 0.3, training = is_training)            
-            # Logits layer 
-            return tf.layers.dense(drop5, n_outputs, use_bias = True)
-    
+        #input_layer = tf.reshape(input_data, (-1, height, width, n_ch))
+        input_layer = input_data
+        # Convolutional layer #1
+        conv1 = tf.layers.conv2d(
+            inputs = input_layer,
+            filters = 20,
+            kernel_size = 5,
+            padding = "same",
+            activation = tf.nn.relu)
+        # Pooling layer #1
+        pool1 = tf.layers.max_pooling2d(
+            inputs=conv1,
+            pool_size=2,
+            strides=2)
+        # Dense layer #1
+        pool1_flat = flatten(pool1)
+        dense1 = tf.layers.dense(inputs=pool1_flat,
+                                units=1024,
+                                activation=tf.nn.relu,
+                                use_bias = True)
+        drop1 = tf.layers.dropout(dense1, rate = 0.4, training = is_training)
+        # Logits layer 
+        return tf.layers.dense(drop1, n_outputs, use_bias = True)
     
     logits = model(X)
     
