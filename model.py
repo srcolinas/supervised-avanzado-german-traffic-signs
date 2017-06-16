@@ -42,7 +42,7 @@ assert os.path.exists(SAVER_DIR)
 assert os.path.exists(LOG_DIR)
 
 print('Loading data')
-train_files = get_files_path(TRAIN_DIR) # Use all files
+train_files = get_files_path(TRAIN_DIR, n = 200)# use 200 images per class
 
 X_train, X_val, y_train, y_val = get_train_and_val_sets(train_files, val_size = 0.2)
 del train_files

@@ -1,6 +1,6 @@
 # RED NEURONAL CONVOLUCIONAL DE PROFUNDIDAD MEDIA
-Para esta solución se utilizó una red neuronal convolucional y todos los datos de entrenamiento 
-disponibles
+Para esta solución se utilizó una red neuronal convolucional y solo 200 imágenes por clase para 
+el entrenamiento, de tal forma que los datos fueran balanceados por clase.
 
 ## Modelo
 La red cuenta con las siguientes capas:
@@ -18,7 +18,7 @@ El dropout se hizo con una probabilidad de conservación de 0.3
 
 ## Resultado
 
- 94% < Tasa de aciertos < 95%
+87% < Tasa de aciertos < 88%
 
 ## Descripción de los archivos
 
