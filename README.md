@@ -37,8 +37,8 @@ serán guardados en el repositorio.
 
 ### Más detalles del reto 
 Para más detalles visite la página principal del reto en colomb-ia:
-    [reto](https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs)
-    [ranking](https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs/blob/master/ranking.md)
+* [reto](https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs)
+* [ranking](https://github.com/colomb-ia/supervised-avanzado-german-traffic-signs/blob/master/ranking.md)
 
     
 
