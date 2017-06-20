@@ -2,9 +2,9 @@
 """
 Created on Wed 13/06/2017
 
-This model consists of conv->pool->conv->pool->conv->pool->
-dense->dense->dense. This model uses all images in the 
-training set, regardless of it being unbalanced
+This model consists of conv->pool-dense->dense. 
+This model uses all images in the training set,
+regardless of it being unbalanced
 
 @author: Sebastian R-Colina (srcolinas@gmail.com,
                              https://github.com/srcolinas)
