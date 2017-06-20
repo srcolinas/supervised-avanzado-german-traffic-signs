@@ -8,7 +8,7 @@ clasificación lineal utilizando SVM. Se usaron **todos** los datos
 
 ## Resultado
 
-81% < Tasa de aciertos < 82%
+82% < Tasa de aciertos < 83%
 
 ## Descripción de los archivos
 
