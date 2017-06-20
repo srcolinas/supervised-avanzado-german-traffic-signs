@@ -23,7 +23,7 @@ from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.externals import joblib
 
 ROOT_DIR = os.getcwd()
-DATA_DIR = 'C:\\Users\\srodri16\\Desktop\\german-traffic-signs'
+DATA_DIR = os.path.join(ROOT_DIR, 'german-traffic-signs')
 TRAIN_DIR = os.path.join(DATA_DIR, 'training-set')
 TEST_DIR = os.path.join(DATA_DIR, 'test-set')
 SAVER_DIR = os.path.join(ROOT_DIR, "logs", "saver")
