@@ -3,8 +3,8 @@
 Created on Wed 13/06/2017
 
 This model consists of conv->pool->conv->pool->conv->pool->
-dense->dense->dense. This model uses all images in the 
-training set, regardless of it being unbalanced
+dense->dense->dense. This model uses 200 images per class in
+the training set.
 
 @author: Sebastian R-Colina (srcolinas@gmail.com,
                              https://github.com/srcolinas)
