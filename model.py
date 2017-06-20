@@ -9,6 +9,8 @@ regardless of it being unbalanced
 @author: Sebastian R-Colina (srcolinas@gmail.com,
                              https://github.com/srcolinas)
 """
+print('Training shallow CNN with all images')
+
 print('Importing modules...')
 import os
 from datetime import datetime
@@ -28,11 +30,11 @@ ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'german-traffic-signs')
 TRAIN_DIR = os.path.join(DATA_DIR, 'training-set')
 TEST_DIR = os.path.join(DATA_DIR, 'test-set')
-SAVER_DIR = os.path.join(ROOT_DIR, "tf_logs", "saver")
+SAVER_DIR = os.path.join(ROOT_DIR, "logs", "saver")
 os.makedirs(SAVER_DIR, exist_ok = True)
 SAVER_FILE = os.path.join(SAVER_DIR, 'model')
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "tf_logs", "tb"), now)
+LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "logs", "tb"), now)
 os.makedirs(LOG_DIR, exist_ok = True)
 
 assert os.path.exists(DATA_DIR)
