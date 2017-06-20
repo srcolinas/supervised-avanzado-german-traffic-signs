@@ -2,13 +2,16 @@
 """
 Created on Wed 13/06/2017
 
-This model consists of conv->pool->conv->pool->conv->pool->
-dense->dense->dense. This model uses all images in the 
-training set, regardless of it being unbalanced
+This model consists of 8 CNN of the form
+conv->pool->dense->dense.
+This model uses all images in the training set, 
+regardless of it being unbalanced
 
 @author: Sebastian R-Colina (srcolinas@gmail.com,
                              https://github.com/srcolinas)
 """
+print('Training 8 shallow CNN')
+
 print('Importing modules...')
 import os
 from datetime import datetime
@@ -18,21 +21,23 @@ from helpers import get_train_and_val_sets
 from helpers import load_data
 from helpers import Fetcher
 from helpers import get_model_params
+from helpers import get_data_splits
 from helpers import restore_model_params
+from sklearn.utils import shuffle
 
 import tensorflow as tf
 from tensorflow.contrib.layers import flatten
 
 
 ROOT_DIR = os.getcwd()
-DATA_DIR = os.path.join(ROOT_DIR, 'german-traffic-signs')
+DATA_DIR = 'C:\\Users\\srodri16\\Desktop\\german-traffic-signs'
 TRAIN_DIR = os.path.join(DATA_DIR, 'training-set')
 TEST_DIR = os.path.join(DATA_DIR, 'test-set')
-SAVER_DIR = os.path.join(ROOT_DIR, "tf_logs", "saver")
+SAVER_DIR = os.path.join(ROOT_DIR, "logs", "saver")
 os.makedirs(SAVER_DIR, exist_ok = True)
 SAVER_FILE = os.path.join(SAVER_DIR, 'model')
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "tf_logs", "tb"), now)
+LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "logs", "tb"), now)
 os.makedirs(LOG_DIR, exist_ok = True)
 
 assert os.path.exists(DATA_DIR)
