@@ -9,6 +9,9 @@ the training set.
 @author: Sebastian R-Colina (srcolinas@gmail.com,
                              https://github.com/srcolinas)
 """
+print('Training middle depth model with 200 imgs per class')
+
+
 print('Importing modules...')
 import os
 from datetime import datetime
@@ -28,11 +31,11 @@ ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'german-traffic-signs')
 TRAIN_DIR = os.path.join(DATA_DIR, 'training-set')
 TEST_DIR = os.path.join(DATA_DIR, 'test-set')
-SAVER_DIR = os.path.join(ROOT_DIR, "tf_logs", "saver")
+SAVER_DIR = os.path.join(ROOT_DIR, "logs", "saver")
 os.makedirs(SAVER_DIR, exist_ok = True)
 SAVER_FILE = os.path.join(SAVER_DIR, 'model')
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "tf_logs", "tb"), now)
+LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "logs", "tb"), now)
 os.makedirs(LOG_DIR, exist_ok = True)
 
 assert os.path.exists(DATA_DIR)
@@ -186,8 +189,8 @@ with tf.Session(graph=graph0) as sess:
             X_batch, y_batch = fetcher.fetch(epoch, batch_index, batch_size, n_batches)
             sess.run(training_op, feed_dict={X: X_batch, y: y_batch, is_training: True})
         if (epoch % 10 == 0):
-            acc_train = get_accuracy(sum_corrects, X_batch, y_batch, splits = 1)
-            acc_val = get_accuracy(sum_corrects, X_val, y_val, splits = 16)
+            acc_train = get_accuracy(sum_corrects, X_batch, y_batch, splits = 3)
+            acc_val = get_accuracy(sum_corrects, X_val, y_val, splits = 10)
             if acc_val > best_acc_val + delta_progress:
                 best_acc_val = acc_val
                 checks_since_last_progress = 0
