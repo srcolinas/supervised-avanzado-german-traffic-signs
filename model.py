@@ -30,7 +30,7 @@ from tensorflow.contrib.layers import flatten
 
 
 ROOT_DIR = os.getcwd()
-DATA_DIR = 'C:\\Users\\srodri16\\Desktop\\german-traffic-signs'
+DATA_DIR = os.path.join(ROOT_DIR, 'german-traffic-signs')
 TRAIN_DIR = os.path.join(DATA_DIR, 'training-set')
 TEST_DIR = os.path.join(DATA_DIR, 'test-set')
 SAVER_DIR = os.path.join(ROOT_DIR, "logs", "saver")
@@ -131,11 +131,11 @@ with graph0.as_default():
        
     sum_total = get_sum(y, logits_total)     
     # Predictions
-    probabilities = [tf.nn.softmax(logit) for logit in logits]
-    prediction = [tf.argmax(prob,1) for prob in probabilities]
+    probabilities = [tf.nn.softmax(logit, name = 'i_probs') for logit in logits]
+    prediction = [tf.argmax(prob,1, name = 'i_preds') for prob in probabilities]
         
-    probs_total = tf.nn.softmax(logits_total)
-    pred_total = tf.argmax(probs_total,1)
+    probs_total = tf.nn.softmax(logits_total, name = 'Probabilities')
+    pred_total = tf.argmax(probs_total,1, name = 'Prediction')
     
     init = tf.global_variables_initializer()
     saver = tf.train.Saver()
