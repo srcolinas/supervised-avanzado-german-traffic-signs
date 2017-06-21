@@ -18,7 +18,7 @@ El dropout se hizo con una probabilidad de conservación de 0.3
 
 ## Resultado
 
-87% < Tasa de aciertos < 88%
+90% < Tasa de aciertos < 91%
 
 ## Descripción de los archivos
 
