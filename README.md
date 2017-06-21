@@ -13,7 +13,7 @@ Cada red es de la siguiente forma :
     
 ## Resultado
 
-90% < Tasa de aciertos < 91%
+89% < Tasa de aciertos < 90%
 
 ## Descripción de los archivos
 
