@@ -7,18 +7,17 @@ La red cuenta con las siguientes capas:
 1. Convolución (40 filtros, kernel de 7x7)
 2. Pooling (2x2, stride 1)
 3. Convolución (20 filtros, kernel de 5x5)
-4. Pooling (2x2, stride 1)
-5. Convolución (10 filtros, kernel de 3x3)
+4. Convolución (10 filtros, kernel de 3x3)
+5. Convolución (5 filtros, kernel de 3x3)
 6. Pooling (2x2, stride 1)
-7. Capa normal (fully connected) con 1024 unidades y dropout
-8. Capa normal (fully connected) con 512 unidades y dropout
-9. Capa normal (fully connected) con 43 unidades (número de clases)
+7. Capa normal (fully connected) con 768 unidades y dropout
+8. Capa normal (fully connected) con 43 unidades (número de clases)
     
 El dropout se hizo con una probabilidad de conservación de 0.3
 
 ## Resultado
 
- 94% < Tasa de aciertos < 95%
+ 95% < Tasa de aciertos < 96%
 
 ## Descripción de los archivos
 

@@ -2,13 +2,15 @@
 """
 Created on Wed 13/06/2017
 
-This model consists of conv->pool->conv->pool->conv->pool->
-dense->dense->dense. This model uses all images in the 
+This model consists of conv->pool->conv->conv->conv->pool->
+dense->dense. This model uses all images in the 
 training set, regardless of it being unbalanced
 
 @author: Sebastian R-Colina (srcolinas@gmail.com,
                              https://github.com/srcolinas)
 """
+print('Running model with several convolutional layers without pooling')
+
 print('Importing modules...')
 import os
 from datetime import datetime
@@ -28,11 +30,11 @@ ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'german-traffic-signs')
 TRAIN_DIR = os.path.join(DATA_DIR, 'training-set')
 TEST_DIR = os.path.join(DATA_DIR, 'test-set')
-SAVER_DIR = os.path.join(ROOT_DIR, "tf_logs", "saver")
+SAVER_DIR = os.path.join(ROOT_DIR, "logs", "saver")
 os.makedirs(SAVER_DIR, exist_ok = True)
 SAVER_FILE = os.path.join(SAVER_DIR, 'model')
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "tf_logs", "tb"), now)
+LOG_DIR = "{}/run-{}/".format(os.path.join(ROOT_DIR, "logs", "tb"), now)
 os.makedirs(LOG_DIR, exist_ok = True)
 
 assert os.path.exists(DATA_DIR)
@@ -92,39 +94,35 @@ with graph0.as_default():
                 kernel_size = 5,
                 padding = "same",
                 activation = tf.nn.relu)
-            # Pooling layer #2
-            pool2 = tf.layers.max_pooling2d(
-                inputs=conv2,
-                pool_size=2,
-                strides=1)
             # Convolutional layer #3
             conv3 = tf.layers.conv2d(
-                inputs = pool2,
+                inputs = conv2,
                 filters = 10,
                 kernel_size = 3,
                 padding = "same",
                 activation = tf.nn.relu)
+            # Convolutional layer #3
+            conv4 = tf.layers.conv2d(
+                inputs = conv3,
+                filters = 5,
+                kernel_size = 3,
+                padding = "same",
+                activation = tf.nn.relu)                
             # Pooling layer #3
-            pool3 = tf.layers.max_pooling2d(
-                inputs=conv3,
+            pool2 = tf.layers.max_pooling2d(
+                inputs=conv4,
                 pool_size=2,
                 strides=1)
-            pool3_flat = flatten(pool3)
-            drop1 = tf.layers.dropout(pool3_flat, rate = 0.3, training = is_training)
+            pool2_flat = flatten(pool2)
+            drop1 = tf.layers.dropout(pool2_flat, rate = 0.3, training = is_training)
             # Dense layer #1
             dense1 = tf.layers.dense(inputs=drop1,
-                                    units=1024,
+                                    units=768,
                                     activation=tf.nn.relu,
                                     use_bias = True)
-            drop4 = tf.layers.dropout(dense1, rate = 0.3, training = is_training)
-            # Dense layer #1
-            dense2 = tf.layers.dense(inputs=drop4,
-                                    units=512,
-                                    activation=tf.nn.relu,
-                                    use_bias = True)
-            drop5 = tf.layers.dropout(dense2, rate = 0.3, training = is_training)            
+            drop2 = tf.layers.dropout(dense1, rate = 0.3, training = is_training)        
             # Logits layer 
-            return tf.layers.dense(drop5, n_outputs, use_bias = True)
+            return tf.layers.dense(drop2, n_outputs, use_bias = True)
     
     
     logits = model(X)
@@ -169,8 +167,8 @@ def get_accuracy(sum_op, X_, y_, splits = 8):
     return s/n
  
 n_epochs = 1000
-batch_size = 50
-n_batches = 20
+batch_size = 30
+n_batches = 30
 
 best_acc_val = 0
 delta_progress = 0.0001
